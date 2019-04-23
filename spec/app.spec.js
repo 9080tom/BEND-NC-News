@@ -47,4 +47,33 @@ describe("/", () => {
         });
     });
   });
+
+  describe("/api/articles", () => {
+    it("GET status:200", () => {
+      return request
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).to.be.an("array");
+          expect(body.articles[0]).to.eql({
+            article_id: 12,
+            author: "butter_bridge",
+            comment_count: "0",
+            created_at: "1974-11-26T12:21:54.171Z",
+            title: "Moustache",
+            topic: "mitch",
+            votes: 0
+          });
+          expect(body.articles[11]).to.eql({
+            article_id: 1,
+            comment_count: "13",
+            created_at: "2018-11-15T12:21:54.171Z",
+            title: "Living in the shadow of a great man",
+            author: "butter_bridge",
+            topic: "mitch",
+            votes: 100
+          });
+        });
+    });
+  });
 });
