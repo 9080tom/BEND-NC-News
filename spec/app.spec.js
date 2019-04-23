@@ -29,19 +29,19 @@ describe("/", () => {
         .get("/api/topics")
         .expect(200)
         .then(({ body }) => {
-          expect(body.topic).to.be.an("array");
-          expect(body.topic).to.equal([
+          expect(body.topics).to.be.an("array");
+          expect(body.topics).to.eql([
             {
-              description: "Code is love, code is life",
-              slug: "coding"
+              description: "The man, the Mitch, the legend",
+              slug: "mitch"
             },
             {
-              description: "FOOTIE!",
-              slug: "football"
+              description: "Not dogs",
+              slug: "cats"
             },
             {
-              description: "Hey good looking, what you got cooking?",
-              slug: "cooking"
+              description: "what books are made of",
+              slug: "paper"
             }
           ]);
         });
