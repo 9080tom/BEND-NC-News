@@ -210,15 +210,22 @@ describe("/", () => {
   describe("PATCH /api/comments/:comment_id", () => {
     it("PATCH status:200 and returns the updated comment as an object", () => {
       return request
-        .patch("/api/comments/:comment_id")
-        .send({ inc_votes: 1 })
-        .expect(201)
+        .patch("/api/comments/10")
+        .send({ inc_votes: 2 })
+        .expect(200)
         .then(({ body }) => {
           expect(body.article).to.be.an("object");
-          expect(body.article.comment_id).to.eql(19);
-          expect(body.article.author).to.equal("butter_bridge");
-          expect(body.article.body).to.eql("mitch is love, mitch is life");
+          expect(body.article.votes).to.eql(2);
+          expect(body.article.body).to.eql("git push origin master");
         });
+    });
+  });
+  describe("DELETE /api/comments/:comment_id", () => {
+    it("DELETE status:204 and returns nothing", () => {
+      return request
+        .delete("/api/comments/10")
+        .expect(204)
+        .then(({ body }) => {});
     });
   });
 });

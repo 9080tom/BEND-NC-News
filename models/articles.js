@@ -40,7 +40,7 @@ exports.fetchAnArticle = params => {
     .then(([article]) => article);
 };
 
-exports.updateCommentCount = (body, params) => {
+exports.updateVoteCount = (body, params) => {
   return connection
     .from("articles")
     .where("article_id", "=", params.article_id)
