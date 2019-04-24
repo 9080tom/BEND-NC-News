@@ -55,16 +55,7 @@ describe("/", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body.articles).to.be.an("array");
-          expect(body.articles[0]).to.eql({
-            article_id: 12,
-            author: "butter_bridge",
-            comment_count: "0",
-            created_at: "1974-11-26T12:21:54.171Z",
-            title: "Moustache",
-            topic: "mitch",
-            votes: 0
-          });
-          expect(body.articles[11]).to.eql({
+          expect(body.articles).to.deep.include({
             article_id: 1,
             comment_count: "13",
             created_at: "2018-11-15T12:21:54.171Z",
@@ -75,5 +66,57 @@ describe("/", () => {
           });
         });
     });
+    it("author query which filters the articles by the username value specified in the query", () => {
+      return request
+        .get("/api/articles?author=icellusedkars")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).to.be.an("array");
+          expect(body.articles.length).to.equal(6);
+          expect(
+            body.articles.every(article => {
+              return (article.author = "icellusedkars");
+            })
+          ).to.be.true;
+        });
+    });
+    it("topic which filters the articles by the topic value specified in the query", () => {
+      return request
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).to.be.an("array");
+          expect(body.articles.length).to.equal(11);
+          expect(
+            body.articles.every(article => {
+              return (article.topic = "mitch");
+            })
+          ).to.be.true;
+        });
+    });
+
+    it("sort_by, which sorts the articles by any vali100d column (defaults to date)", () => {
+      return request
+        .get("/api/articles?sort_by=votes")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).to.be.an("array");
+          expect(body.articles[0].votes).to.equal(100);
+        });
+    });
+
+    it(" order, which can be set to asc or desc for ascending or descending (defaults to descending)", () => {
+      return request
+        .get("/api/articles?order=asc")
+        .expect(200)
+        .then(({ body }) => {
+          100;
+          expect(body.articles).to.be.an("array");
+          expect(body.articles[0].votes).to.equal(0);
+        });
+    });
+  });
+  describe("/api/articles", () => {
+    it("GET status:200", () => {});
   });
 });
