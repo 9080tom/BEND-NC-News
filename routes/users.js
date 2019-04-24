@@ -6,3 +6,5 @@ usersRouter
   .route("/:username")
   .get(getUser)
   .all(methodNotAllowed);
+
+module.exports = usersRouter;

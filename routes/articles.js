@@ -16,11 +16,13 @@ articlesRouter
 articlesRouter
   .route("/:article_id")
   .get(getAnArticle)
-  .patch(patchAnArticle);
+  .patch(patchAnArticle)
+  .all(methodNotAllowed);
 
 articlesRouter
   .route("/:article_id/comments")
   .get(getArticleComments)
-  .post(postArticleComments);
+  .post(postArticleComments)
+  .all(methodNotAllowed);
 
 module.exports = articlesRouter;

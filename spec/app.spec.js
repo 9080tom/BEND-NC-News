@@ -228,4 +228,86 @@ describe("/", () => {
         .then(({ body }) => {});
     });
   });
+  describe("GET /api/users/:username", () => {
+    it("GET status:200 and returns an object", () => {
+      return request
+        .get("/api/users/butter_bridge")
+        .expect(200)
+        .then(({ body }) => {
+          //body?
+          expect(body.user.username).to.eql("butter_bridge");
+        });
+    });
+  });
+});
+describe("ERROR testing", () => {
+  describe("GET /asdfghjkl", () => {
+    it("GET status:404 and returns an error object", () => {
+      return request
+        .get("/asdfghjkl")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).to.eql("Route Not Found");
+        });
+    });
+  });
+  describe("PATCH / PUT / POST / DELETE... /api/articles etc", () => {
+    it("PATCH / PUT / POST / DELETE on /api/topics", () => {
+      return request
+        .delete("/api/topics")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.eql("Method Not Allowed");
+        });
+    });
+    it("PATCH / PUT / POST / DELETE on /api/articles", () => {
+      return request
+        .patch("/api/articles")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.eql("Method Not Allowed");
+        });
+    });
+
+    it("PUT / POST / DELETE on api/articles/:article_id", () => {
+      return request
+        .delete("/api/articles/2")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.eql("Method Not Allowed");
+        });
+    });
+    it("PATCH / PUT  / DELETE on api/articles/:article_id/comments", () => {
+      return request
+        .delete("/api/articles/2/comments")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.eql("Method Not Allowed");
+        });
+    });
+    it("GET / PUT / POST  on /api/comments/:comment_id", () => {
+      return request
+        .post("/api/comments/2")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.eql("Method Not Allowed");
+        });
+    });
+    it("PATCH / PUT / POST / DELETE on /api/users/butter_bridge", () => {
+      return request
+        .delete("/api/users/butter_bridge")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.eql("Method Not Allowed");
+        });
+    });
+    it("PATCH / PUT / POST / DELETE on /api", () => {
+      return request
+        .delete("/api")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.eql("Method Not Allowed");
+        });
+    });
+  });
 });
