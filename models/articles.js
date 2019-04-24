@@ -21,13 +21,48 @@ exports.fetchAllArticles = function({ author, topic, sort_by, order }) {
     .groupBy("articles.article_id");
 };
 
-// const fetchAllTreasure = function({ sort_by, limit, ascending, colour }) {
-//   return connection
-//     .select("*")
-//     .from("treasures")
-//     .leftJoin("shops", "treasures.shop_id", "shops.shop_id")
-//     .orderBy(sort_by || "cost_at_auction", ascending || "asc")
-//     .limit(+limit || 25)
-//     .modify(query => {
-//       if (colour) query.where({ colour });
-//     });
+exports.fetchAnArticle = params => {
+  return connection
+    .select([
+      "articles.author",
+      "title",
+      "articles.article_id",
+      "topic",
+      "articles.created_at",
+      "articles.votes",
+      "articles.body"
+    ])
+    .from("articles")
+    .count({ comment_count: "comments.article_id" })
+    .leftJoin("comments", "articles.article_id", "comments.article_id")
+    .groupBy("articles.article_id")
+    .where("articles.article_id", "=", params.article_id)
+    .then(([article]) => article);
+};
+
+exports.updateCommentCount = (body, params) => {
+  return connection
+    .from("articles")
+    .where("article_id", "=", params.article_id)
+    .increment({
+      votes: body.inc_votes
+    })
+    .then(() =>
+      connection
+        .select([
+          "articles.author",
+          "title",
+          "articles.article_id",
+          "topic",
+          "articles.created_at",
+          "articles.votes",
+          "articles.body"
+        ])
+        .from("articles")
+        .count({ comment_count: "comments.article_id" })
+        .leftJoin("comments", "articles.article_id", "comments.article_id")
+        .groupBy("articles.article_id")
+        .where("articles.article_id", "=", params.article_id)
+    )
+    .then(([article]) => article);
+};
