@@ -1,7 +1,9 @@
 const {
   fetchAllArticles,
   fetchAnArticle,
-  updateCommentCount
+  updateCommentCount,
+  fetechArticleComments,
+  addArticleComment
 } = require("../models/articles");
 
 exports.getAllArticles = (req, res) => {
@@ -19,5 +21,17 @@ exports.getAnArticle = (req, res) => {
 exports.patchAnArticle = (req, res) => {
   updateCommentCount(req.body, req.params).then(article => {
     return res.status(200).send({ article });
+  });
+};
+
+exports.getArticleComments = (req, res) => {
+  fetechArticleComments(req.params, req.query).then(article => {
+    return res.status(200).send({ article });
+  });
+};
+
+exports.postArticleComments = (req, res) => {
+  addArticleComment(req.params, req.body).then(article => {
+    return res.status(201).send({ article });
   });
 };

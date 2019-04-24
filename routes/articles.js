@@ -3,7 +3,9 @@ const { methodNotAllowed } = require("../errors");
 const {
   getAllArticles,
   getAnArticle,
-  patchAnArticle
+  patchAnArticle,
+  getArticleComments,
+  postArticleComments
 } = require("../controllers/articles");
 
 articlesRouter
@@ -15,5 +17,10 @@ articlesRouter
   .route("/:article_id")
   .get(getAnArticle)
   .patch(patchAnArticle);
+
+articlesRouter
+  .route("/:article_id/comments")
+  .get(getArticleComments)
+  .post(postArticleComments);
 
 module.exports = articlesRouter;

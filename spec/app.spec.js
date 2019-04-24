@@ -126,6 +126,7 @@ describe("/", () => {
           expect(body.article).to.eql({
             article_id: 1,
             comment_count: "13",
+            body: "I find this existence challenging",
             created_at: "2018-11-15T12:21:54.171Z",
             title: "Living in the shadow of a great man",
             author: "butter_bridge",
@@ -158,22 +159,65 @@ describe("/", () => {
     });
   });
   describe("/api/articles/:article_id/comments", () => {
-    it("PATCH status:200 and recives the chosen article as an object with updated values", () => {
+    it("get status:200 and recives the chosen comment as an array", () => {
       return request
-        .patch("/api/articles/1")
-        .send({ inc_votes: 1 })
+        .get("/api/articles/1/comments")
         .expect(200)
         .then(({ body }) => {
+          expect(body.article).to.be.an("array");
+          expect(body.article.length).to.equal(13);
+        });
+    });
+    it("can sort_by which can be set to any column name", () => {
+      return request
+        .get("/api/articles/1/comments?sort_by=votes")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article).to.be.an("array");
+          expect(body.article[0].votes).to.equal(100);
+        });
+    });
+    it("can order which can be set to asc or desc for ascending or descending", () => {
+      return request
+        .get("/api/articles/1/comments?order=asc")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article).to.be.an("array");
+          expect(body.article[0].created_at).to.equal(
+            "2000-11-26T12:36:03.389Z"
+          );
+        });
+    });
+  });
+
+  describe("POST /api/articles/:article_id/comments", () => {
+    it("POST status:201 and returns the posted comment as an object", () => {
+      return request
+        .post("/api/articles/1/comments")
+        .send({
+          username: "butter_bridge",
+          body: "mitch is love, mitch is life"
+        })
+        .expect(201)
+        .then(({ body }) => {
           expect(body.article).to.be.an("object");
-          expect(body.article).to.eql({
-            article_id: 1,
-            comment_count: "13",
-            created_at: "2018-11-15T12:21:54.171Z",
-            title: "Living in the shadow of a great man",
-            author: "butter_bridge",
-            topic: "mitch",
-            votes: 101
-          });
+          expect(body.article.comment_id).to.eql(19);
+          expect(body.article.author).to.equal("butter_bridge");
+          expect(body.article.body).to.eql("mitch is love, mitch is life");
+        });
+    });
+  });
+  describe("PATCH /api/comments/:comment_id", () => {
+    it("PATCH status:200 and returns the updated comment as an object", () => {
+      return request
+        .patch("/api/comments/:comment_id")
+        .send({ inc_votes: 1 })
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.article).to.be.an("object");
+          expect(body.article.comment_id).to.eql(19);
+          expect(body.article.author).to.equal("butter_bridge");
+          expect(body.article.body).to.eql("mitch is love, mitch is life");
         });
     });
   });

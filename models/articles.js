@@ -66,3 +66,23 @@ exports.updateCommentCount = (body, params) => {
     )
     .then(([article]) => article);
 };
+exports.fetechArticleComments = (params, query) => {
+  return connection
+    .select(["comment_id", "votes", "created_at", "author", "body"])
+    .from("comments")
+    .orderBy(query.sort_by || "created_at", query.order || "desc")
+    .where("article_id", "=", params.article_id);
+};
+
+exports.addArticleComment = (params, body) => {
+  comment = {
+    author: body.username,
+    article_id: params.article_id,
+    votes: 0,
+    body: body.body
+  };
+  return connection("comments")
+    .insert(comment)
+    .returning("*")
+    .then(([comment]) => comment);
+};
