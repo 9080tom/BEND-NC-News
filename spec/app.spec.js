@@ -234,80 +234,202 @@ describe("/", () => {
         .get("/api/users/butter_bridge")
         .expect(200)
         .then(({ body }) => {
-          //body?
           expect(body.user.username).to.eql("butter_bridge");
         });
     });
   });
-});
-describe("ERROR testing", () => {
-  describe("GET /asdfghjkl", () => {
-    it("GET status:404 and returns an error object", () => {
-      return request
-        .get("/asdfghjkl")
-        .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).to.eql("Route Not Found");
-        });
+  describe("ERROR testing", () => {
+    describe("GET /asdfghjkl", () => {
+      it("GET status:404 and returns an error object", () => {
+        return request
+          .get("/asdfghjkl")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("Route Not Found");
+          });
+      });
     });
-  });
-  describe("PATCH / PUT / POST / DELETE... /api/articles etc", () => {
-    it("PATCH / PUT / POST / DELETE on /api/topics", () => {
-      return request
-        .delete("/api/topics")
-        .expect(405)
-        .then(({ body }) => {
-          expect(body.msg).to.eql("Method Not Allowed");
-        });
+    describe("GET /api/asdfghjkl", () => {
+      it("GET status:404 and returns an error object", () => {
+        return request
+          .get("/api/asdfghjkl")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("Route Not Found");
+          });
+      });
     });
-    it("PATCH / PUT / POST / DELETE on /api/articles", () => {
-      return request
-        .patch("/api/articles")
-        .expect(405)
-        .then(({ body }) => {
-          expect(body.msg).to.eql("Method Not Allowed");
-        });
+    describe("PATCH / PUT / POST / DELETE... /api/articles etc", () => {
+      it("PATCH / PUT / POST / DELETE on /api/topics", () => {
+        return request
+          .delete("/api/topics")
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("Method Not Allowed");
+          });
+      });
+      it("PATCH / PUT / POST / DELETE on /api/articles", () => {
+        return request
+          .patch("/api/articles")
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("Method Not Allowed");
+          });
+      });
+
+      it("PUT / POST / DELETE on api/articles/:article_id", () => {
+        return request
+          .delete("/api/articles/2")
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("Method Not Allowed");
+          });
+      });
+      it("PATCH / PUT  / DELETE on api/articles/:article_id/comments", () => {
+        return request
+          .delete("/api/articles/2/comments")
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("Method Not Allowed");
+          });
+      });
+      it("GET / PUT / POST  on /api/comments/:comment_id", () => {
+        return request
+          .post("/api/comments/2")
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("Method Not Allowed");
+          });
+      });
+      it("PATCH / PUT / POST / DELETE on /api/users/butter_bridge", () => {
+        return request
+          .delete("/api/users/butter_bridge")
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("Method Not Allowed");
+          });
+      });
+      it("PATCH / PUT / POST / DELETE on /api", () => {
+        return request
+          .delete("/api")
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("Method Not Allowed");
+          });
+      });
+    });
+    describe("GET /api/topics", () => {
+      it("can detect an incorrect route", () => {
+        return request
+          .get("/api/topics/aflknd")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("Route Not Found");
+          });
+      });
     });
 
-    it("PUT / POST / DELETE on api/articles/:article_id", () => {
-      return request
-        .delete("/api/articles/2")
-        .expect(405)
-        .then(({ body }) => {
-          expect(body.msg).to.eql("Method Not Allowed");
-        });
+    describe("GET /api/articles", () => {
+      it("can detect an incorrect sort_by query and return to default", () => {
+        return request
+          .get("/api/articles?sort_by=bacon")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.msg).to.eql(undefined);
+            expect(body.articles[0]).to.eql({
+              article_id: 1,
+              comment_count: "13",
+              created_at: "2018-11-15T12:21:54.171Z",
+              title: "Living in the shadow of a great man",
+              author: "butter_bridge",
+              topic: "mitch",
+              votes: 100
+            });
+          });
+      });
+
+      it("can detect an incorrect order query and return to default", () => {
+        return request
+          .get("/api/articles?order=bacon")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.msg).to.eql(undefined);
+            expect(body.articles[0]).to.eql({
+              article_id: 1,
+              comment_count: "13",
+              created_at: "2018-11-15T12:21:54.171Z",
+              title: "Living in the shadow of a great man",
+              author: "butter_bridge",
+              topic: "mitch",
+              votes: 100
+            });
+          });
+      });
+      it("can detect an invalid author query and return to an error", () => {
+        return request
+          .get("/api/articles?author=bacon")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("username not found");
+          });
+      });
+      it("can detect an invalid topic query and return to an error", () => {
+        return request
+          .get("/api/articles?topic=bacon")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("topic not found");
+          });
+      });
     });
-    it("PATCH / PUT  / DELETE on api/articles/:article_id/comments", () => {
-      return request
-        .delete("/api/articles/2/comments")
-        .expect(405)
-        .then(({ body }) => {
-          expect(body.msg).to.eql("Method Not Allowed");
-        });
+    describe("GET /api/articles/:article_id", () => {
+      it("can detect an invaild id", () => {
+        return request
+          .get("/api/articles/aflknd")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("invalid id");
+          });
+      });
+      it("can detect an id with no article", () => {
+        return request
+          .get("/api/articles/99")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("id not found");
+          });
+      });
     });
-    it("GET / PUT / POST  on /api/comments/:comment_id", () => {
-      return request
-        .post("/api/comments/2")
-        .expect(405)
-        .then(({ body }) => {
-          expect(body.msg).to.eql("Method Not Allowed");
-        });
-    });
-    it("PATCH / PUT / POST / DELETE on /api/users/butter_bridge", () => {
-      return request
-        .delete("/api/users/butter_bridge")
-        .expect(405)
-        .then(({ body }) => {
-          expect(body.msg).to.eql("Method Not Allowed");
-        });
-    });
-    it("PATCH / PUT / POST / DELETE on /api", () => {
-      return request
-        .delete("/api")
-        .expect(405)
-        .then(({ body }) => {
-          expect(body.msg).to.eql("Method Not Allowed");
-        });
+    describe("PATCH /api/articles/:article_id", () => {
+      it("can detect an no inc_votes on body", () => {
+        return request
+          .patch("/api/articles/1")
+          .send({})
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("no inc_votes on body");
+          });
+      });
+      it("can detect an invaild id", () => {
+        return request
+          .patch("/api/articles/1")
+          .send({ inc_votes: "cat" })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("inc_votes must be an integer");
+          });
+      });
+      it("can detect an invaild key on the body", () => {
+        return request
+          .patch("/api/articles/1")
+          .send({ inc_votes: 1, potato: 1 })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.eql(
+              "inc_votes must be the only key on the body"
+            );
+          });
+      });
     });
   });
 });

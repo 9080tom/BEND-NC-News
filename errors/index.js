@@ -11,10 +11,14 @@ exports.handleCustomErrors = (err, req, res, next) => {
 };
 
 exports.handlePsqlErrors = (err, req, res, next) => {
-  const psqlBadRequestCodes = ["22P02"];
-  if (psqlBadRequestCodes.includes(err.code))
-    res.status(400).send({ msg: err.message || "Bad Request" });
-  else next(err);
+  const psqlBadRequestCodes = {
+    "22P02": { msg: "invalid id" }
+  };
+  if (psqlBadRequestCodes[err.code]) {
+    res
+      .status(400)
+      .send({ msg: psqlBadRequestCodes[err.code].msg || "Bad Request" });
+  } else next(err);
 };
 
 exports.handle500 = (err, req, res, next) => {
