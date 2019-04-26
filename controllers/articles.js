@@ -5,9 +5,7 @@ const {
   fetechArticleComments,
   addArticleComment,
   authorChecker,
-  topicChecker,
-  vaildArticle,
-  vaildVote
+  topicChecker
 } = require("../models/articles");
 
 exports.getAllArticles = (req, res, next) => {
@@ -47,14 +45,28 @@ exports.patchAnArticle = (req, res, next) => {
     .catch(next);
 };
 
-exports.getArticleComments = (req, res) => {
-  fetechArticleComments(req.params, req.query).then(article => {
-    return res.status(200).send({ article });
-  });
+exports.getArticleComments = (req, res, next) => {
+  fetechArticleComments(req.params, req.query)
+    .then(comments => {
+      if (comments[0] === undefined) {
+        return Promise.reject({ status: 404, msg: "id not found" });
+      } else {
+        return res.status(200).send({ comments });
+      }
+    })
+    .catch(next);
 };
 
-exports.postArticleComments = (req, res) => {
-  addArticleComment(req.params, req.body).then(article => {
-    return res.status(201).send({ article });
-  });
+exports.postArticleComments = (req, res, next) => {
+  authorChecker(req.body.username)
+    .then(check => {
+      if (check === true) {
+        return Promise.reject({ status: 404, msg: "username not found" });
+      }
+    })
+    .then(() => addArticleComment(req.params, req.body))
+    .then(comments => {
+      return res.status(201).send({ comments });
+    })
+    .catch(next);
 };

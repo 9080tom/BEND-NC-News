@@ -12,11 +12,15 @@ exports.handleCustomErrors = (err, req, res, next) => {
 
 exports.handlePsqlErrors = (err, req, res, next) => {
   const psqlBadRequestCodes = {
-    "22P02": { msg: "invalid id" }
+    "22P02": { msg: "invalid id", status: 400 },
+    "23503": {
+      msg: `id is not present`,
+      status: 404
+    }
   };
   if (psqlBadRequestCodes[err.code]) {
     res
-      .status(400)
+      .status(psqlBadRequestCodes[err.code].status)
       .send({ msg: psqlBadRequestCodes[err.code].msg || "Bad Request" });
   } else next(err);
 };

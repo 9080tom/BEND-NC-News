@@ -158,14 +158,14 @@ describe("/", () => {
         });
     });
   });
-  describe("/api/articles/:article_id/comments", () => {
+  describe("GET /api/articles/:article_id/comments", () => {
     it("get status:200 and recives the chosen comment as an array", () => {
       return request
         .get("/api/articles/1/comments")
         .expect(200)
         .then(({ body }) => {
-          expect(body.article).to.be.an("array");
-          expect(body.article.length).to.equal(13);
+          expect(body.comments).to.be.an("array");
+          expect(body.comments.length).to.equal(13);
         });
     });
     it("can sort_by which can be set to any column name", () => {
@@ -173,8 +173,8 @@ describe("/", () => {
         .get("/api/articles/1/comments?sort_by=votes")
         .expect(200)
         .then(({ body }) => {
-          expect(body.article).to.be.an("array");
-          expect(body.article[0].votes).to.equal(100);
+          expect(body.comments).to.be.an("array");
+          expect(body.comments[0].votes).to.equal(100);
         });
     });
     it("can order which can be set to asc or desc for ascending or descending", () => {
@@ -182,8 +182,8 @@ describe("/", () => {
         .get("/api/articles/1/comments?order=asc")
         .expect(200)
         .then(({ body }) => {
-          expect(body.article).to.be.an("array");
-          expect(body.article[0].created_at).to.equal(
+          expect(body.comments).to.be.an("array");
+          expect(body.comments[0].created_at).to.equal(
             "2000-11-26T12:36:03.389Z"
           );
         });
@@ -200,10 +200,10 @@ describe("/", () => {
         })
         .expect(201)
         .then(({ body }) => {
-          expect(body.article).to.be.an("object");
-          expect(body.article.comment_id).to.eql(19);
-          expect(body.article.author).to.equal("butter_bridge");
-          expect(body.article.body).to.eql("mitch is love, mitch is life");
+          expect(body.comments).to.be.an("object");
+          expect(body.comments.comment_id).to.eql(19);
+          expect(body.comments.author).to.equal("butter_bridge");
+          expect(body.comments.body).to.eql("mitch is love, mitch is life");
         });
     });
   });
@@ -401,13 +401,24 @@ describe("/", () => {
       });
     });
     describe("PATCH /api/articles/:article_id", () => {
-      it("can detect an no inc_votes on body", () => {
+      it("can detect an no inc_votes on body and instead sends the article", () => {
         return request
           .patch("/api/articles/1")
           .send({})
-          .expect(400)
+          .expect(200)
           .then(({ body }) => {
-            expect(body.msg).to.eql("no inc_votes on body");
+            expect(body.article).to.be.an("object");
+            expect(body.article).to.eql({
+              article_id: 1,
+              comment_count: "13",
+              body: "I find this existence challenging",
+              created_at: "2018-11-15T12:21:54.171Z",
+              title: "Living in the shadow of a great man",
+              author: "butter_bridge",
+              body: "I find this existence challenging",
+              topic: "mitch",
+              votes: 100
+            });
           });
       });
       it("can detect an invaild id", () => {
@@ -428,6 +439,180 @@ describe("/", () => {
             expect(body.msg).to.eql(
               "inc_votes must be the only key on the body"
             );
+          });
+      });
+    });
+    describe("GET /api/articles/:article_id/comments", () => {
+      it("Bad article_id", () => {
+        return request
+          .get("/api/articles/cheese/comments")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("invalid id");
+          });
+      });
+      it("Well formed article_id that doesn't exist in the database", () => {
+        return request
+          .get("/api/articles/99/comments")
+          .send({ inc_votes: 1, potato: 1 })
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("id not found");
+          });
+      });
+      it("can detect an incorrect order query and return to default", () => {
+        return request
+          .get("/api/articles/1/comments?order=bacon")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.msg).to.eql(undefined);
+            expect(body.comments[0]).to.eql({
+              body:
+                "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+              comment_id: 2,
+              created_at: "2016-11-22T12:36:03.389Z",
+              votes: 14,
+              author: "butter_bridge"
+            });
+          });
+      });
+      it("can detect an incorrect sort_by query and return to default", () => {
+        return request
+          .get("/api/articles/1/comments?sort_by=bacon")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.comments).to.be.an("array");
+            expect(body.comments[0].created_at).to.equal(
+              "2016-11-22T12:36:03.389Z"
+            );
+          });
+      });
+    });
+    describe("POST /api/articles/:article_id/comments", () => {
+      it("body doesnt have the corect keys", () => {
+        return request
+          .post("/api/articles/1/comments")
+          .send({ username: "butter_bridge" })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("incorect keys on body");
+          });
+      });
+      it("invalid article id", () => {
+        return request
+          .post("/api/articles/bacon/comments")
+          .send({
+            username: "butter_bridge",
+            body: "mitch is love, mitch is life"
+          })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("invalid id");
+          });
+      });
+      it("article id is vaild but doesnt exist", () => {
+        return request
+          .post("/api/articles/99/comments")
+          .send({
+            username: "butter_bridge",
+            body: "mitch is love, mitch is life"
+          })
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("id is not present");
+          });
+      });
+      it("username is not in users", () => {
+        return request
+          .post("/api/articles/1/comments")
+          .expect(404)
+          .send({
+            username: "butter_bad",
+            body: "mitch is love, mitch is life"
+          })
+          .then(({ body }) => {
+            expect(body.msg).to.equal("username not found");
+          });
+      });
+      it("body is a string", () => {
+        return request
+          .post("/api/articles/1/comments")
+          .expect(400)
+          .send({
+            username: "butter_bridge",
+            body: 8
+          })
+          .then(({ body }) => {
+            expect(body.msg).to.equal("body must be a string");
+          });
+      });
+    });
+
+    describe("PATCH /api/comments/:comment_id", () => {
+      it("can detect an no inc_votes on body and return the comment", () => {
+        return request
+          .patch("/api/comments/1")
+          .send({})
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.article).to.be.an("object");
+            expect(body.article).to.eql({
+              article_id: 9,
+              author: "butter_bridge",
+              body:
+                "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+              comment_id: 1,
+              created_at: "2017-11-22T12:36:03.389Z",
+              votes: 16
+            });
+          });
+      });
+      it("can detect an invaild id", () => {
+        return request
+          .patch("/api/comments/1")
+          .send({ inc_votes: "cat" })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("inc_votes must be an integer");
+          });
+      });
+      it("can detect an invaild key on the body", () => {
+        return request
+          .patch("/api/comments/1")
+          .send({ inc_votes: 1, potato: 1 })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.eql(
+              "inc_votes must be the only key on the body"
+            );
+          });
+      });
+    });
+    describe("DELETE /api/comments/:comment_id", () => {
+      it("invalid comment_id", () => {
+        return request
+          .delete("/api/comments/hsvbjv")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("invalid id");
+          });
+      });
+      it("comment_id is vaild but doesnt exist", () => {
+        return request
+          .delete("/api/comments/99")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("id not found");
+          });
+      });
+    });
+    describe("GET /api/users/:username", () => {
+      it("username but doesnt exist", () => {
+        return request
+          .get("/api/users/hsvbjv")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("id not found");
           });
       });
     });

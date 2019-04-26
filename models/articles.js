@@ -54,7 +54,24 @@ exports.fetchAnArticle = params => {
 };
 
 exports.updateVoteCount = (body, params) => {
-  if (body.inc_votes === undefined) {
+  if (Object.keys(body).length === 0) {
+    return connection
+      .select([
+        "articles.author",
+        "title",
+        "articles.article_id",
+        "topic",
+        "articles.created_at",
+        "articles.votes",
+        "articles.body"
+      ])
+      .from("articles")
+      .count({ comment_count: "comments.article_id" })
+      .leftJoin("comments", "articles.article_id", "comments.article_id")
+      .groupBy("articles.article_id")
+      .where("articles.article_id", "=", params.article_id)
+      .then(([article]) => article);
+  } else if (body.inc_votes === undefined) {
     return Promise.reject({ status: 400, msg: "no inc_votes on body" });
   } else if (Number.isInteger(body.inc_votes) === false) {
     return Promise.reject({
@@ -100,21 +117,46 @@ exports.fetechArticleComments = (params, query) => {
   return connection
     .select(["comment_id", "votes", "created_at", "author", "body"])
     .from("comments")
-    .orderBy(query.sort_by || "created_at", query.order || "desc")
+    .orderBy(
+      ["author", "body", "comment_id", "created_at", "votes"].indexOf(
+        query.sort_by
+      ) === -1
+        ? "created_at"
+        : query.sort_by,
+      query.order === "asc" || query.order === "desc" ? query.order : "desc"
+    )
     .where("article_id", "=", params.article_id);
 };
 
 exports.addArticleComment = (params, body) => {
-  comment = {
-    author: body.username,
-    article_id: params.article_id,
-    votes: 0,
-    body: body.body
-  };
-  return connection("comments")
-    .insert(comment)
-    .returning("*")
-    .then(([comment]) => comment);
+  if (
+    body.username === undefined ||
+    body.body === undefined ||
+    Object.keys(body).length !== 2
+  ) {
+    return Promise.reject({ status: 400, msg: "incorect keys on body" });
+  } else if (typeof body.body !== "string") {
+    return Promise.reject({
+      status: 400,
+      msg: "body must be a string"
+    });
+  } else if (typeof body.username !== "string") {
+    return Promise.reject({
+      status: 400,
+      msg: "username must be a string"
+    });
+  } else {
+    comment = {
+      author: body.username,
+      article_id: params.article_id,
+      votes: 0,
+      body: body.body
+    };
+    return connection("comments")
+      .insert(comment)
+      .returning("*")
+      .then(([comment]) => comment);
+  }
 };
 
 exports.authorChecker = author => {
