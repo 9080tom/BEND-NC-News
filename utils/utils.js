@@ -1,19 +1,18 @@
 exports.timeStapConverter = (arr, key) => {
-  let newArr = JSON.parse(JSON.stringify(arr));
-  newArr.forEach(element => {
+  return arr.map(element => {
     const date = new Date(element[key]);
     element[key] = date.toISOString();
+    return element;
   });
-  return newArr;
 };
 
 exports.swapCreatedByWithAuthor = arr => {
-  let newArr = JSON.parse(JSON.stringify(arr));
-  newArr.forEach(element => {
-    element.author = element.created_by;
-    delete element.created_by;
+  return arr.map(element => {
+    let newElement = { ...element };
+    newElement.author = newElement.created_by;
+    delete newElement.created_by;
+    return newElement;
   });
-  return newArr;
 };
 
 exports.swapBelongsToWithArticleId = function(articles, comments) {
@@ -21,11 +20,10 @@ exports.swapBelongsToWithArticleId = function(articles, comments) {
   articles.forEach(article => {
     articleAndIds[article.title] = article.article_id;
   });
-  const newComments = JSON.parse(JSON.stringify(comments));
-
-  newComments.forEach(comment => {
-    comment.article_id = articleAndIds[comment.belongs_to];
-    delete comment.belongs_to;
+  return comments.map(element => {
+    let newElement = { ...element };
+    newElement.article_id = articleAndIds[newElement.belongs_to];
+    delete newElement.belongs_to;
+    return newElement;
   });
-  return newComments;
 };

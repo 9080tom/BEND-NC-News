@@ -6,8 +6,8 @@ const {
 
 exports.voteOnComment = (req, res, next) => {
   updateVoteCount(req.body, req.params)
-    .then(article => {
-      return res.status(200).send({ article });
+    .then(comment => {
+      return res.status(200).send({ comment });
     })
     .catch(next);
 };

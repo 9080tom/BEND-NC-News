@@ -160,7 +160,7 @@ exports.addArticleComment = (params, body) => {
 };
 
 exports.authorChecker = author => {
-  if (author === undefined) return false;
+  if (!author) return false;
   else {
     return connection("users")
       .select("username")
@@ -172,7 +172,7 @@ exports.authorChecker = author => {
 };
 
 exports.topicChecker = topic => {
-  if (topic === undefined) return false;
+  if (!topic) return false;
   else {
     return connection("topics")
       .select("slug")
@@ -181,4 +181,13 @@ exports.topicChecker = topic => {
         return result.length === 0;
       });
   }
+};
+
+exports.article_idChecker = article_id => {
+  return connection("articles")
+    .select("articles")
+    .where("article_id", "=", article_id)
+    .then(result => {
+      return result.length === 0;
+    });
 };

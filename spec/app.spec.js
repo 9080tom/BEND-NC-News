@@ -200,10 +200,10 @@ describe("/", () => {
         })
         .expect(201)
         .then(({ body }) => {
-          expect(body.comments).to.be.an("object");
-          expect(body.comments.comment_id).to.eql(19);
-          expect(body.comments.author).to.equal("butter_bridge");
-          expect(body.comments.body).to.eql("mitch is love, mitch is life");
+          expect(body.comment).to.be.an("object");
+          expect(body.comment.comment_id).to.eql(19);
+          expect(body.comment.author).to.equal("butter_bridge");
+          expect(body.comment.body).to.eql("mitch is love, mitch is life");
         });
     });
   });
@@ -214,9 +214,9 @@ describe("/", () => {
         .send({ inc_votes: 2 })
         .expect(200)
         .then(({ body }) => {
-          expect(body.article).to.be.an("object");
-          expect(body.article.votes).to.eql(2);
-          expect(body.article.body).to.eql("git push origin master");
+          expect(body.comment).to.be.an("object");
+          expect(body.comment.votes).to.eql(2);
+          expect(body.comment.body).to.eql("git push origin master");
         });
     });
   });
@@ -454,7 +454,6 @@ describe("/", () => {
       it("Well formed article_id that doesn't exist in the database", () => {
         return request
           .get("/api/articles/99/comments")
-          .send({ inc_votes: 1, potato: 1 })
           .expect(404)
           .then(({ body }) => {
             expect(body.msg).to.eql("id not found");
@@ -488,7 +487,7 @@ describe("/", () => {
           });
       });
     });
-    describe("POST /api/articles/:article_id/comments", () => {
+    describe.only("POST /api/articles/:article_id/comments", () => {
       it("body doesnt have the corect keys", () => {
         return request
           .post("/api/articles/1/comments")
@@ -555,8 +554,8 @@ describe("/", () => {
           .send({})
           .expect(200)
           .then(({ body }) => {
-            expect(body.article).to.be.an("object");
-            expect(body.article).to.eql({
+            expect(body.comment).to.be.an("object");
+            expect(body.comment).to.eql({
               article_id: 9,
               author: "butter_bridge",
               body:
