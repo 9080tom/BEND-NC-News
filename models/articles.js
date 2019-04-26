@@ -54,12 +54,9 @@ exports.fetchAnArticle = params => {
 };
 
 exports.updateVoteCount = (body, params) => {
-  console.log(Object.keys(body));
   if (body.inc_votes === undefined) {
-    console.log("undefined");
     return Promise.reject({ status: 400, msg: "no inc_votes on body" });
   } else if (Number.isInteger(body.inc_votes) === false) {
-    console.log("not an integer");
     return Promise.reject({
       status: 400,
       msg: "inc_votes must be an integer"
@@ -68,7 +65,6 @@ exports.updateVoteCount = (body, params) => {
     Object.keys(body)[0] !== "inc_votes" ||
     Object.keys(body).length !== 1
   ) {
-    console.log("not only inc votes");
     return Promise.reject({
       status: 400,
       msg: "inc_votes must be the only key on the body"
