@@ -487,11 +487,11 @@ describe("/", () => {
           });
       });
     });
-    describe.only("POST /api/articles/:article_id/comments", () => {
+    describe("POST /api/articles/:article_id/comments", () => {
       it("body doesnt have the corect keys", () => {
         return request
           .post("/api/articles/1/comments")
-          .send({ username: "butter_bridge" })
+          .send({})
           .expect(400)
           .then(({ body }) => {
             expect(body.msg).to.equal("incorect keys on body");
@@ -584,6 +584,16 @@ describe("/", () => {
             expect(body.msg).to.eql(
               "inc_votes must be the only key on the body"
             );
+          });
+      });
+      it("comment_id is vaild but doesnt exist", () => {
+        return request
+          .patch("/api/comments/99")
+          .send({ inc_votes: 1 })
+
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("id not found");
           });
       });
     });

@@ -23,19 +23,18 @@ exports.updateVoteCount = (body, params) => {
       msg: "inc_votes must be the only key on the body"
     });
   } else {
-    return connection
-      .from("comments")
+    return connection("comments")
       .where("comment_id", "=", params.comment_id)
-      .increment({
-        votes: body.inc_votes
-      })
-      .then(() =>
-        connection
-          .select("*")
-          .from("comments")
-          .where("comment_id", "=", params.comment_id)
-      )
-      .then(([comment]) => comment);
+      .increment("votes", body.inc_votes || 0)
+      .returning("*")
+      .then(([result]) => {
+        if (result === undefined)
+          return Promise.reject({
+            status: 404,
+            msg: "id not found"
+          });
+        return result;
+      });
   }
 };
 

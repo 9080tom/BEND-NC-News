@@ -160,8 +160,9 @@ exports.addArticleComment = (params, body) => {
 };
 
 exports.authorChecker = author => {
-  if (!author) return false;
-  else {
+  if (!author) {
+    return new Promise(resolve => resolve(false));
+  } else {
     return connection("users")
       .select("username")
       .where("username", "=", author)

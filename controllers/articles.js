@@ -70,5 +70,7 @@ exports.postArticleComments = (req, res, next) => {
     .then(comment => {
       return res.status(201).send({ comment });
     })
-    .catch(next);
+    .catch(err => {
+      next(err);
+    });
 };
