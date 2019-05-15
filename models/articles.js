@@ -142,8 +142,12 @@ exports.fetechArticleComments = (params, query) => {
       query.order === "asc" || query.order === "desc" ? query.order : "desc"
     )
     .where("article_id", "=", params.article_id)
-    .limit(query.limit || 10)
-    .offset((query.p - 1) * query.limit || 0);
+    .then(comments => {
+      return comments.slice(
+        ((p || 1) - 1) * (limit || 10),
+        (p || 1) * (limit || 10)
+      );
+    });
 };
 
 exports.addArticleComment = (params, body) => {
