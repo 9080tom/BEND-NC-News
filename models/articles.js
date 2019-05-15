@@ -144,8 +144,8 @@ exports.fetechArticleComments = (params, query) => {
     .where("article_id", "=", params.article_id)
     .then(comments => {
       return comments.slice(
-        ((p || 1) - 1) * (limit || 10),
-        (p || 1) * (limit || 10)
+        ((query.p || 1) - 1) * (query.limit || 10),
+        (query.p || 1) * (query.limit || 10)
       );
     });
 };
