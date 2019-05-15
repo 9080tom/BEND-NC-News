@@ -51,12 +51,12 @@ describe("/", () => {
   describe("/api/articles", () => {
     it("GET status:200 and recives all articles as an array", () => {
       return request
-        .get("/api/articles")
+        .get("/api/articles?limit=20")
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles).to.be.an("array");
-          expect(body.articles.length).to.equal(12);
-          expect(body.articles).to.deep.include({
+          expect(body.articles.articles).to.be.an("array");
+          expect(body.articles.articles.length).to.equal(12);
+          expect(body.articles.articles).to.deep.include({
             article_id: 1,
             comment_count: "13",
             created_at: "2018-11-15T12:21:54.171Z",
@@ -72,10 +72,10 @@ describe("/", () => {
         .get("/api/articles?author=icellusedkars")
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles).to.be.an("array");
-          expect(body.articles.length).to.equal(6);
+          expect(body.articles.articles).to.be.an("array");
+          expect(body.articles.articles.length).to.equal(6);
           expect(
-            body.articles.every(article => {
+            body.articles.articles.every(article => {
               return (article.author = "icellusedkars");
             })
           ).to.be.true;
@@ -83,13 +83,13 @@ describe("/", () => {
     });
     it("topic which filters the articles by the topic value specified in the query", () => {
       return request
-        .get("/api/articles?topic=mitch")
+        .get("/api/articles?topic=mitch&limit=20")
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles).to.be.an("array");
-          expect(body.articles.length).to.equal(11);
+          expect(body.articles.articles).to.be.an("array");
+          expect(body.articles.articles.length).to.equal(11);
           expect(
-            body.articles.every(article => {
+            body.articles.articles.every(article => {
               return (article.topic = "mitch");
             })
           ).to.be.true;
@@ -101,8 +101,8 @@ describe("/", () => {
         .get("/api/articles?sort_by=votes")
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles).to.be.an("array");
-          expect(body.articles[0].votes).to.equal(100);
+          expect(body.articles.articles).to.be.an("array");
+          expect(body.articles.articles[0].votes).to.equal(100);
         });
     });
 
@@ -111,8 +111,8 @@ describe("/", () => {
         .get("/api/articles?order=asc")
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles).to.be.an("array");
-          expect(body.articles[0].votes).to.equal(0);
+          expect(body.articles.articles).to.be.an("array");
+          expect(body.articles.articles[0].votes).to.equal(0);
         });
     });
   });
@@ -161,7 +161,7 @@ describe("/", () => {
   describe("GET /api/articles/:article_id/comments", () => {
     it("get status:200 and recives the chosen comment as an array", () => {
       return request
-        .get("/api/articles/1/comments")
+        .get("/api/articles/1/comments?limit=20")
         .expect(200)
         .then(({ body }) => {
           expect(body.comments).to.be.an("array");
@@ -336,7 +336,7 @@ describe("/", () => {
           .expect(200)
           .then(({ body }) => {
             expect(body.msg).to.eql(undefined);
-            expect(body.articles[0]).to.eql({
+            expect(body.articles.articles[0]).to.eql({
               article_id: 1,
               comment_count: "13",
               created_at: "2018-11-15T12:21:54.171Z",
@@ -354,7 +354,7 @@ describe("/", () => {
           .expect(200)
           .then(({ body }) => {
             expect(body.msg).to.eql(undefined);
-            expect(body.articles[0]).to.eql({
+            expect(body.articles.articles[0]).to.eql({
               article_id: 1,
               comment_count: "13",
               created_at: "2018-11-15T12:21:54.171Z",

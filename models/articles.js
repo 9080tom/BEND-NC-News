@@ -1,6 +1,13 @@
 const connection = require("../db/connection");
 
-exports.fetchAllArticles = function({ author, topic, sort_by, order }) {
+exports.fetchAllArticles = function({
+  author,
+  topic,
+  sort_by,
+  order,
+  p,
+  limit
+}) {
   return connection
     .select([
       "articles.author",
@@ -31,7 +38,16 @@ exports.fetchAllArticles = function({ author, topic, sort_by, order }) {
     )
     .count({ comment_count: "comments.article_id" })
     .leftJoin("comments", "articles.article_id", "comments.article_id")
-    .groupBy("articles.article_id");
+    .groupBy("articles.article_id")
+    .then(articles => {
+      return {
+        articles: articles.slice(
+          ((p || 1) - 1) * (limit || 10),
+          (p || 1) * (limit || 10)
+        ),
+        total_count: articles.length
+      };
+    });
 };
 
 exports.fetchAnArticle = params => {
@@ -125,7 +141,9 @@ exports.fetechArticleComments = (params, query) => {
         : query.sort_by,
       query.order === "asc" || query.order === "desc" ? query.order : "desc"
     )
-    .where("article_id", "=", params.article_id);
+    .where("article_id", "=", params.article_id)
+    .limit(query.limit || 10)
+    .offset((query.p - 1) * query.limit || 0);
 };
 
 exports.addArticleComment = (params, body) => {
