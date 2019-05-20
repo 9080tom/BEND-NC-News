@@ -6,7 +6,8 @@ const {
   addArticleComment,
   authorChecker,
   topicChecker,
-  article_idChecker
+  article_idChecker,
+  insertNewArticle
 } = require("../models/articles");
 
 exports.getAllArticles = (req, res, next) => {
@@ -73,4 +74,12 @@ exports.postArticleComments = (req, res, next) => {
     .catch(err => {
       next(err);
     });
+};
+
+exports.postAnArticle = (req, res, next) => {
+  insertNewArticle(req.body)
+    .then(article => {
+      res.status(201).send(article);
+    })
+    .catch(next);
 };

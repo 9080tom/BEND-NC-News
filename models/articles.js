@@ -181,6 +181,64 @@ exports.addArticleComment = (params, body) => {
   }
 };
 
+exports.insertNewArticle = body => {
+  const validKeys = ["username", "title", "topic", "body"];
+  let notValid = false;
+  validKeys.forEach(element => {
+    if (
+      !Object.keys(body).includes(element) ||
+      typeof body[element] !== "string"
+    )
+      notValid = true;
+  });
+  if (notValid)
+    return Promise.reject({ status: 400, msg: "Not valid POST body" });
+  else {
+    return connection
+      .select("username")
+      .from("users")
+      .where("username", "=", body.username)
+      .then(result => {
+        if (result.length === 0)
+          return Promise.reject({
+            status: 404,
+            msg: "Username not found"
+          });
+        return result;
+      })
+      .then(() => {
+        return connection
+          .select("slug")
+          .from("topics")
+          .where("slug", "=", body.topic)
+          .then(result => {
+            return result;
+          });
+      })
+      .then(result => {
+        if (result.length === 0)
+          return Promise.reject({
+            status: 404,
+            msg: "Topic not found"
+          });
+        else {
+          const { username, ...otherKeys } = body;
+          const correctlyFormattedArticleBody = {
+            author: username,
+            ...otherKeys
+          };
+          return connection("articles")
+            .insert(correctlyFormattedArticleBody)
+            .returning("*");
+        }
+      })
+      .then(([article]) => {
+        article.comment_count = 0;
+        return { article };
+      });
+  }
+};
+
 exports.authorChecker = author => {
   if (!author) {
     return new Promise(resolve => resolve(false));
