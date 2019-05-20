@@ -241,9 +241,15 @@ exports.insertNewArticle = body => {
 
 exports.removeArticle = params => {
   return connection
-    .from("articles")
+    .from("comments")
     .where("article_id", params.article_id)
-    .del();
+    .del()
+    .then(() => {
+      return connection
+        .from("articles")
+        .where("article_id", params.article_id)
+        .del();
+    });
 };
 
 exports.authorChecker = author => {

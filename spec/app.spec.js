@@ -743,6 +743,18 @@ describe("/", () => {
             expect(body.msg).to.eql("id not found");
           });
       });
+      it("comments of this articele no longer exist", () => {
+        return request
+          .delete("/api/articles/1")
+          .expect(204)
+          .then(({ body }) => {
+            expect(body).to.eql({});
+            return request
+              .patch("/api/comments/2")
+              .send({ inc_votes: 1 })
+              .expect(404);
+          });
+      });
     });
   });
 });
