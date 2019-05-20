@@ -279,7 +279,7 @@ describe("/", () => {
 
       it("PUT / POST / DELETE on api/articles/:article_id", () => {
         return request
-          .delete("/api/articles/2")
+          .put("/api/articles/2")
           .expect(405)
           .then(({ body }) => {
             expect(body.msg).to.eql("Method Not Allowed");
@@ -303,7 +303,7 @@ describe("/", () => {
       });
       it("PATCH / PUT / POST / DELETE on /api/users/butter_bridge", () => {
         return request
-          .delete("/api/users/butter_bridge")
+          .put("/api/users/butter_bridge")
           .expect(405)
           .then(({ body }) => {
             expect(body.msg).to.eql("Method Not Allowed");
@@ -717,6 +717,30 @@ describe("/", () => {
           .expect(404)
           .then(({ body }) => {
             expect(body.msg).to.equal("Topic not found");
+          });
+      });
+    });
+    describe("DELETE /api/articles/:article_id", () => {
+      it("DELETE status:204 and returns nothing", () => {
+        return request
+          .delete("/api/comments/10")
+          .expect(204)
+          .then(({ body }) => {});
+      });
+      it("invalid article_id", () => {
+        return request
+          .delete("/api/articles/hsvbjv")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("invalid id");
+          });
+      });
+      it("comment_id is vaild but doesnt exist", () => {
+        return request
+          .delete("/api/articles/99")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("id not found");
           });
       });
     });

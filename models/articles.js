@@ -239,6 +239,13 @@ exports.insertNewArticle = body => {
   }
 };
 
+exports.removeArticle = params => {
+  return connection
+    .from("articles")
+    .where("article_id", params.article_id)
+    .del();
+};
+
 exports.authorChecker = author => {
   if (!author) {
     return new Promise(resolve => resolve(false));

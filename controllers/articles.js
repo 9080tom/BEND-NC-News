@@ -7,7 +7,8 @@ const {
   authorChecker,
   topicChecker,
   article_idChecker,
-  insertNewArticle
+  insertNewArticle,
+  removeArticle
 } = require("../models/articles");
 
 exports.getAllArticles = (req, res, next) => {
@@ -80,6 +81,20 @@ exports.postAnArticle = (req, res, next) => {
   insertNewArticle(req.body)
     .then(article => {
       res.status(201).send(article);
+    })
+    .catch(next);
+};
+
+exports.deleteAnArticle = (req, res, next) => {
+  article_idChecker(req.params.article_id)
+    .then(check => {
+      if (check === true) {
+        return Promise.reject({ status: 404, msg: "id not found" });
+      } else {
+        removeArticle(req.params).then(() => {
+          return res.sendStatus(204);
+        });
+      }
     })
     .catch(next);
 };
