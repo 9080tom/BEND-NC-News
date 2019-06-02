@@ -2,7 +2,7 @@ exports.getApiInfo = () => {
   return {
     "GET /api": {
       description:
-        "returns up a json representation of all the available endpoints of the api"
+        "returns up a json representation of all the available endpoints in the api"
     },
     "GET /api/topics": {
       description: "returns an array of all topics",

@@ -71,6 +71,16 @@ The app should now be running on http://localhost:9090
 The following endpoints are available:
 
 ```http
+GET /api
+```
+
+### Responds with
+
+- returns up a json representation of all the available endpoints in the api
+
+---
+
+```http
 GET /api/topics
 ```
 
