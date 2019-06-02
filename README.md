@@ -1,6 +1,6 @@
 # BEND-NC-NEWS
 
-hosted on heroku at https://nc-news-tom.herokuapp.com/
+hosted on heroku at https://nc-news-tom.herokuapp.com/api
 
 This API will powers the frontend of my NC News app
 this can be found at https://github.com/9080tom/nc-news
